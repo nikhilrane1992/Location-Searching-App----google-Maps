@@ -258,7 +258,11 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		double lng = add.getLongitude();
 		
 		gotoLocation(lat, lng, DEFAULTZOOM);
-		
+		MarkerOptions options = new MarkerOptions()
+		.title(locality)
+		.position(new LatLng(lat, lng));
+		mMap.addMarker(options);
+	
 	}
 	
 	private void hideSoftKeyboard(View v) {
