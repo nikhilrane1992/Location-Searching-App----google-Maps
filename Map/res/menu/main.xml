@@ -15,5 +15,10 @@
     <item
         android:id="@+id/mapTypeNone"
         android:title="None"/>
+    
+    <item
+        android:id="@+id/gotoCurrentLocation"
+        android:showAsAction="always"
+        android:title="@string/current_location"/>
 
 </menu>

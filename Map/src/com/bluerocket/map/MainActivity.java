@@ -49,7 +49,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			if(initMap()){
 				Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
 				gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
-//				mMap.setMyLocationEnabled(true);
+				mMap.setMyLocationEnabled(true);
 				mLocationClient = new LocationClient(this, this, this);
 				mLocationClient.connect();
 			}else{
@@ -84,6 +84,9 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			break;
 		case R.id.mapTypeHybrid:
 			mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			break;
+		case R.id.gotoCurrentLocation:
+			gotoCurrentLocation();
 			break;
 
 		default:
