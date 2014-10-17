@@ -2,6 +2,7 @@ package com.bluerocket.map;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,7 +13,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends FragmentActivity {
 	GoogleMap mMap;
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
     @Override
@@ -20,9 +21,12 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         if (serviceOK()){
 			Toast.makeText(this, "Ready to Use MAP", Toast.LENGTH_SHORT).show();
-
+			setContentView(R.layout.activity_map);
 		}
-        setContentView(R.layout.activity_main);
+		else{
+
+			setContentView(R.layout.activity_main);
+		}
     }
 
 
