@@ -21,6 +21,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -144,5 +145,28 @@ public class MainActivity extends FragmentActivity {
 	private void hideSoftKeyboard(View v) {
 		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		MapStateManager mgr = new MapStateManager(this);
+		mgr.saveMapState(mMap);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		MapStateManager mgr = new MapStateManager(this);
+		CameraPosition position = mgr.getSavedCameraPosition();
+		if (position != null) {
+			CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+			mMap.moveCamera(update);
+			//			This is part of the answer to the code challenge
+			mMap.setMapType(mgr.getSavedMapType());
+		}
+	}
+
+	protected void gotoCurrentLocation() {
 	}
 }
