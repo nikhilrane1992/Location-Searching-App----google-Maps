@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.Dialog;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -16,7 +17,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,7 +28,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements
+GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener{
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
 	GoogleMap mMap;
 	
@@ -33,7 +38,7 @@ public class MainActivity extends FragmentActivity {
 	private static final double JALGAON_LAT = 21.013321, 
 	JALGAON_LNG =75.563972;
 	private static final float DEFAULTZOOM = 15;
-	
+	LocationClient mLocationClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +49,9 @@ public class MainActivity extends FragmentActivity {
 			if(initMap()){
 				Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
 				gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
-				mMap.setMyLocationEnabled(true);
+//				mMap.setMyLocationEnabled(true);
+				mLocationClient = new LocationClient(this, this, this);
+				mLocationClient.connect();
 			}else{
 				Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
 			}
@@ -169,5 +176,34 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	protected void gotoCurrentLocation() {
+		Location currentLocation = mLocationClient.getLastLocation();
+		if (currentLocation == null) {
+			Toast.makeText(this, "Current location isn't available", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			LatLng ll = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+			CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, DEFAULTZOOM);
+			mMap.animateCamera(update);
+		}
+	}
+
+	
+
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		Toast.makeText(this, "Connected to location service", Toast.LENGTH_SHORT).show();
+		
+	}
+
+	@Override
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult result) {
+		// TODO Auto-generated method stub
+		
 	}
 }
