@@ -7,6 +7,11 @@
     android:layout_height="match_parent"
     map:cameraTargetLat="21.013321" 
     map:cameraTargetLng="75.563972"
-    map:cameraZoom="15"/>
+    map:cameraZoom="15"
+    map:uiRotateGestures="false"
+    map:uiTiltGestures="false"
+    map:uiScrollGestures="false"
+    map:uiZoomGestures="false"
+    map:uiZoomControls="false"/>
 
     
