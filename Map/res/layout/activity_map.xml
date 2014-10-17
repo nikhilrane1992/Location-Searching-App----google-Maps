@@ -12,6 +12,7 @@
     map:uiTiltGestures="false"
     map:uiScrollGestures="false"
     map:uiZoomGestures="false"
-    map:uiZoomControls="false"/>
+    map:uiZoomControls="false"
+    map:mapType="satellite"/>
 
     
