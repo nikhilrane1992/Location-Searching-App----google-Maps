@@ -20,6 +20,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,7 +32,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends FragmentActivity implements
 GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener{
+GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
 	GoogleMap mMap;
 	
@@ -195,7 +197,11 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Connected to location service", Toast.LENGTH_SHORT).show();
-		
+		LocationRequest request = LocationRequest.create();
+		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		request.setInterval(5000);
+		request.getFastestInterval();
+		mLocationClient.requestLocationUpdates(request, this);
 	}
 
 	@Override
@@ -208,5 +214,11 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	public void onConnectionFailed(ConnectionResult result) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
+		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 	}
 }
