@@ -9,13 +9,22 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 
 public class MainActivity extends FragmentActivity {
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
 	GoogleMap mMap;
+	
+	@SuppressWarnings("unused")
+	private static final double JALGAON_LAT = 21.013321, 
+	JALGAON_LNG =75.563972;
+	private static final float DEFAULTZOOM = 15;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +34,7 @@ public class MainActivity extends FragmentActivity {
 
 			if(initMap()){
 				Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
+				gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
 			}else{
 				Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
 			}
@@ -34,8 +44,7 @@ public class MainActivity extends FragmentActivity {
 		}
     }
 
-
-    @Override
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -77,5 +86,18 @@ public class MainActivity extends FragmentActivity {
 			mMap = mapFrag.getMap();
 		}
 		return (mMap != null); 
+	}
+    
+    private void gotoLocation(double lat, double lng) {
+		LatLng ll = new LatLng(lat, lng);
+		CameraUpdate update = CameraUpdateFactory.newLatLng(ll);
+		mMap.moveCamera(update);
+	}
+    
+    private void gotoLocation(double lat, double lng,
+			float zoom) {
+		LatLng ll = new LatLng(lat, lng);
+		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, zoom);
+		mMap.moveCamera(update);
 	}
 }
