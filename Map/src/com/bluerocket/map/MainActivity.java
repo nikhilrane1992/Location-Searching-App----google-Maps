@@ -59,17 +59,30 @@ public class MainActivity extends FragmentActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch (item.getItemId()) {
+		case R.id.mapTypeNone:
+			mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+			break;
+		case R.id.mapTypeNormal:
+			mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			break;
+		case R.id.mapTypeSatellite:
+			mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+			break;
+		case R.id.mapTypeTerrain:
+			mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+			break;
+		case R.id.mapTypeHybrid:
+			mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			break;
+
+		default:
+			break;
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}
     
     public boolean servicesOK()
 	{
