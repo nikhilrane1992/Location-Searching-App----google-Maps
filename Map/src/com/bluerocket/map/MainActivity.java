@@ -3,7 +3,6 @@ package com.bluerocket.map;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -11,25 +10,26 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.SupportMapFragment;
 
 
 public class MainActivity extends FragmentActivity {
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
 	GoogleMap mMap;
-	MapView mMapView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (serviceOK()){
-			Toast.makeText(this, "Ready to Use MAP", Toast.LENGTH_SHORT).show();
-			setContentView(R.layout.activity_mapview);
-			
-			mMapView = (MapView) findViewById(R.id.map);
-			mMapView.onCreate(savedInstanceState);
-		}
-		else{
 
+		if (servicesOK()) {
+			setContentView(R.layout.activity_map);
+
+			if(initMap()){
+				Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
+			}else{
+				Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
+			}
+		}
+		else {
 			setContentView(R.layout.activity_main);
 		}
     }
@@ -54,7 +54,7 @@ public class MainActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
     
-    public boolean serviceOK()
+    public boolean servicesOK()
 	{
 		int isAvailables = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (isAvailables == ConnectionResult.SUCCESS){
@@ -69,33 +69,13 @@ public class MainActivity extends FragmentActivity {
 		return false;
 	}
     
-    @Override
-	protected void onDestroy() {
-		super.onDestroy();
-		mMapView.onDestroy();
-	}
-
-	@Override
-	public void onLowMemory() {
-		super.onLowMemory();
-		mMapView.onLowMemory();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mMapView.onPause();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mMapView.onResume();
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		mMapView.onSaveInstanceState(outState);
+    public boolean initMap(){
+		
+		if (mMap == null) {
+			SupportMapFragment mapFrag = (SupportMapFragment) 
+					getSupportFragmentManager().findFragmentById(R.id.map);
+			mMap = mapFrag.getMap();
+		}
+		return (mMap != null); 
 	}
 }
