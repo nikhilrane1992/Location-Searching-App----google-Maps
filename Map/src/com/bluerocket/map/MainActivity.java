@@ -44,6 +44,7 @@ public class MainActivity extends FragmentActivity {
 			if(initMap()){
 				Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
 				gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
+				mMap.setMyLocationEnabled(true);
 			}else{
 				Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
 			}
