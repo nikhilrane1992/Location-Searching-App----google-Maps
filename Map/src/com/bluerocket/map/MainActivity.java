@@ -11,17 +11,22 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 
 
 public class MainActivity extends FragmentActivity {
-	GoogleMap mMap;
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
+	GoogleMap mMap;
+	MapView mMapView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (serviceOK()){
 			Toast.makeText(this, "Ready to Use MAP", Toast.LENGTH_SHORT).show();
-			setContentView(R.layout.activity_map);
+			setContentView(R.layout.activity_mapview);
+			
+			mMapView = (MapView) findViewById(R.id.map);
+			mMapView.onCreate(savedInstanceState);
 		}
 		else{
 
@@ -62,5 +67,35 @@ public class MainActivity extends FragmentActivity {
 			Toast.makeText(this, "Google service not available", Toast.LENGTH_SHORT).show();
 		}
 		return false;
+	}
+    
+    @Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mMapView.onDestroy();
+	}
+
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		mMapView.onLowMemory();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mMapView.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mMapView.onResume();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mMapView.onSaveInstanceState(outState);
 	}
 }
