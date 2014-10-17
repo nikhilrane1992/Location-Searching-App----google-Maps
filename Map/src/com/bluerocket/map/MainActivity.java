@@ -258,10 +258,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		double lng = add.getLongitude();
 		
 		gotoLocation(lat, lng, DEFAULTZOOM);
+		if (marker != null) {
+			marker.remove();
+		}
 		MarkerOptions options = new MarkerOptions()
 		.title(locality)
 		.position(new LatLng(lat, lng));
-		mMap.addMarker(options);
+		marker = mMap.addMarker(options);
 	
 	}
 	
