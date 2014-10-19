@@ -20,5 +20,10 @@
         android:id="@+id/gotoCurrentLocation"
         android:showAsAction="always"
         android:title="@string/current_location"/>
+    
+    <item
+        android:id="@+id/createNote"
+        android:showAsAction="always"
+        android:title="@string/create_note"/>
 
 </menu>

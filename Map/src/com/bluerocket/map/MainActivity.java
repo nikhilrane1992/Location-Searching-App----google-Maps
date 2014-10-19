@@ -1,15 +1,21 @@
 package com.bluerocket.map;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
+import android.R.string;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,9 +49,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends FragmentActivity implements
 GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
+
+
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
+	private static final String DEFAULT = "N/A";
 	GoogleMap mMap;
-	
+
+
 	@SuppressWarnings("unused")
 	private static final double JALGAON_LAT = 21.013321, 
 	JALGAON_LNG =75.563972;
@@ -53,10 +63,12 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	LocationClient mLocationClient;
 	Marker marker;
 	Circle shape;
-	
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
 
 		if (servicesOK()) {
 			setContentView(R.layout.activity_map);
@@ -74,14 +86,14 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		else {
 			setContentView(R.layout.activity_main);
 		}
-    }
+	}
 
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch (item.getItemId()) {
@@ -104,14 +116,18 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			gotoCurrentLocation();
 			break;
 
+		case R.id.createNote:
+			create_note();
+			break;
+
 		default:
 			break;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-    
-    public boolean servicesOK()
+
+	public boolean servicesOK()
 	{
 		int isAvailables = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (isAvailables == ConnectionResult.SUCCESS){
@@ -125,8 +141,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		}
 		return false;
 	}
-    
-    private boolean initMap() {
+
+	private boolean initMap() {
 		if (mMap == null) {
 			SupportMapFragment mapFrag =
 					(SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -148,12 +164,15 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 						TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
 						TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
 
+
 						LatLng ll = marker.getPosition();
 
 						tvLocality.setText(marker.getTitle());
 						tvLat.setText("Latitude: " + ll.latitude);
 						tvLng.setText("Longitude: " + ll.longitude);
 						tvSnippet.setText(marker.getSnippet());
+
+
 
 						return v;
 					}
@@ -228,14 +247,14 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		}
 		return (mMap != null);
 	}
-    
-    private void gotoLocation(double lat, double lng) {
+
+	private void gotoLocation(double lat, double lng) {
 		LatLng ll = new LatLng(lat, lng);
 		CameraUpdate update = CameraUpdateFactory.newLatLng(ll);
 		mMap.moveCamera(update);
 	}
-    
-    private void gotoLocation(double lat, double lng,
+
+	private void gotoLocation(double lat, double lng,
 			float zoom) {
 		LatLng ll = new LatLng(lat, lng);
 		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, zoom);
@@ -244,19 +263,19 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
 	public void geoLocate(View v) throws IOException {
 		hideSoftKeyboard(v);
-		
+
 		EditText et = (EditText) findViewById(R.id.editText1);
 		String location = et.getText().toString();
-		
+
 		Geocoder gc = new Geocoder(this);
 		List<Address> list = gc.getFromLocationName(location, 1);
 		Address add = list.get(0);
 		String locality = add.getLocality();
 		Toast.makeText(this, locality, Toast.LENGTH_LONG).show();
-		
+
 		double lat = add.getLatitude();
 		double lng = add.getLongitude();
-		
+
 		gotoLocation(lat, lng, DEFAULTZOOM);
 		if (marker != null) {
 			marker.remove();
@@ -265,14 +284,14 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		.title(locality)
 		.position(new LatLng(lat, lng));
 		marker = mMap.addMarker(options);
-	
+
 	}
-	
+
 	private void hideSoftKeyboard(View v) {
 		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -305,7 +324,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		}
 	}
 
-	
+
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
@@ -320,24 +339,69 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@Override
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onConnectionFailed(ConnectionResult result) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
-//		String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
-//		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+//				String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
+//				Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+		SharedPreferences sharedPreferences=getSharedPreferences("SaveData", Context.MODE_PRIVATE);
+//		String lat=sharedPreferences.getString("lat", DEFAULT); 
+		double lat = Double.longBitsToDouble(sharedPreferences.getLong("lat", 0));
+//		String lng=sharedPreferences.getString("lng", DEFAULT); 
+		String message=sharedPreferences.getString("message", DEFAULT); 
+		double lng = Double.longBitsToDouble(sharedPreferences.getLong("lng", 0));
+		if (lat == 0 || lng == 0 || message.equals(DEFAULT)) {
+			Toast.makeText(this, "No data found", Toast.LENGTH_SHORT).show();
+			
+		}else {
+//			String latDecrease = Float.toString((float) (Float.parseFloat(lat) - 0.090));
+			
+//			DecimalFormat dFormat = new DecimalFormat("#.####"); 
+//			Double Latitude = Double.valueOf(dFormat.format(location.getLatitude()));
+//			Double Longitude = Double.valueOf(dFormat.format(location.getLongitude()));
+//			Toast.makeText(this, "Match Found"  + Double.parseDouble(lat) + "" + Double.parseDouble(lng) , Toast.LENGTH_SHORT).show();
+			
+//		
+			double Latitude = location.getLatitude();
+			double Longitude = location.getLongitude();
+//		if (distance(lat, lng, Latitude, Longitude) < 0.1 && distance(lat, lng, Latitude, Longitude) > 0.1) {
+			double dist = distance(lat, lng, Latitude, Longitude);	
+			Toast.makeText(this, "" + dist, Toast.LENGTH_SHORT).show();
+//			}
+		}
+	}
+
+	private double distance(double lat, double lng, double Latitude, double Longitude) {
+		
+	    double earthRadius = 3958.75; // in miles, change to 6371 for kilometer output
+
+	    double dLat = Math.toRadians(Latitude-lat);
+	    double dLng = Math.toRadians(Longitude-lng);
+
+	    double sindLat = Math.sin(dLat / 2);
+	    double sindLng = Math.sin(dLng / 2);
+
+	    double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
+	        * Math.cos(Math.toRadians(lat)) * Math.cos(Math.toRadians(Latitude));
+
+	    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+	    double dist = earthRadius * c;
+
+	    return dist; // output distance, in MILES
 	}
 	
 	private void setMarker(String locality, String country, double lat, double lng) {
 		LatLng ll = new LatLng(lat,lng);
-		
+
 		MarkerOptions options = new MarkerOptions()	
 		.title(locality)
 		.position(new LatLng(lat,lng))
@@ -374,4 +438,38 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		shape.remove();
 		shape = null;
 	}
+
+	public void create_note(){
+		setContentView(R.layout.message_save);
+		TextView lat = (TextView) findViewById(R.id.lat);
+		TextView lng = (TextView) findViewById(R.id.lng);
+		LatLng ll = marker.getPosition();
+
+		lat.setText("Latitude: " + ll.latitude);
+		lng.setText("Longitude: " + ll.longitude);
+
+	}
+
+//	if (marker != null) {
+//		button.setVisibility(1);
+//	}else {
+//		button.setVisibility(2);
+//	}
+		public void saveNote(View v){
+			//setContentView(R.layout.activity_map);
+			LatLng ll = marker.getPosition();
+			EditText message  = (EditText) findViewById(R.id.message);
+			TextView lat = (TextView) findViewById(R.id.lat);
+			TextView lng = (TextView) findViewById(R.id.lng);
+			Log.d("nik", "SaveText");
+			SharedPreferences sharedPreferences=getSharedPreferences("SaveData", Context.MODE_PRIVATE);
+			SharedPreferences.Editor editor=sharedPreferences.edit();
+			editor.putLong("lat",  Double.doubleToLongBits(ll.latitude));
+			editor.putLong("lng", Double.doubleToLongBits(ll.longitude));
+			editor.putString("message", message.getText().toString());
+			editor.commit();
+			Toast.makeText(this, "Note Created Sucessfully", Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(this,MainActivity.class);
+			startActivity(intent);
+			}
 }
