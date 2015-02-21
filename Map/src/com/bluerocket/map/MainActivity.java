@@ -5,15 +5,20 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import android.R.string;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -53,7 +58,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
 	private static final String DEFAULT = "N/A";
+	public static Boolean off_vibrator=false;
 	GoogleMap mMap;
+    public Vibrator vibrator;
 
 
 	@SuppressWarnings("unused")
@@ -69,22 +76,25 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-
-		if (servicesOK()) {
-			setContentView(R.layout.activity_map);
-
-			if(initMap()){
-				Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
-				gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
-				mMap.setMyLocationEnabled(true);
-				mLocationClient = new LocationClient(this, this, this);
-				mLocationClient.connect();
-			}else{
-				Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
+		if(isNetworkAvailable()){
+			if (servicesOK()) {
+				setContentView(R.layout.activity_map);
+	
+				if(initMap()){
+					Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
+					gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
+					mMap.setMyLocationEnabled(true);
+					mLocationClient = new LocationClient(this, this, this);
+					mLocationClient.connect();
+				}else{
+					Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
+				}
 			}
-		}
-		else {
-			setContentView(R.layout.activity_main);
+			else {
+				setContentView(R.layout.activity_main);
+			}
+		}else{
+			Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -98,26 +108,58 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch (item.getItemId()) {
 		case R.id.mapTypeNone:
-			mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+			if(isNetworkAvailable()){
+				mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.mapTypeNormal:
-			mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			if(isNetworkAvailable()){
+				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.mapTypeSatellite:
-			mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+			if(isNetworkAvailable()){
+				mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.mapTypeTerrain:
-			mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+			if(isNetworkAvailable()){
+				mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.mapTypeHybrid:
-			mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			if(isNetworkAvailable()){
+				mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.gotoCurrentLocation:
-			gotoCurrentLocation();
+			if(isNetworkAvailable()){
+				gotoCurrentLocation();
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 
 		case R.id.createNote:
-			create_note();
+			if(isNetworkAvailable()){
+				if(marker == null){
+					Toast.makeText(this, "Please select location first !!!", Toast.LENGTH_SHORT).show();
+				}else{
+				create_note();
+				}
+			}else{
+				Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+			}
 			break;
 
 		default:
@@ -142,6 +184,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		return false;
 	}
 
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+	
 	private boolean initMap() {
 		if (mMap == null) {
 			SupportMapFragment mapFrag =
@@ -248,11 +297,11 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		return (mMap != null);
 	}
 
-	private void gotoLocation(double lat, double lng) {
-		LatLng ll = new LatLng(lat, lng);
-		CameraUpdate update = CameraUpdateFactory.newLatLng(ll);
-		mMap.moveCamera(update);
-	}
+//	private void gotoLocation(double lat, double lng) {
+//		LatLng ll = new LatLng(lat, lng);
+//		CameraUpdate update = CameraUpdateFactory.newLatLng(ll);
+//		mMap.moveCamera(update);
+//	}
 
 	private void gotoLocation(double lat, double lng,
 			float zoom) {
@@ -295,20 +344,28 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@Override
 	protected void onStop() {
 		super.onStop();
-		MapStateManager mgr = new MapStateManager(this);
-		mgr.saveMapState(mMap);
+		if(isNetworkAvailable()){
+			MapStateManager mgr = new MapStateManager(this);
+			mgr.saveMapState(mMap);
+		}else{
+		Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+	}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		MapStateManager mgr = new MapStateManager(this);
-		CameraPosition position = mgr.getSavedCameraPosition();
-		if (position != null) {
-			CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
-			mMap.moveCamera(update);
-			//			This is part of the answer to the code challenge
-			mMap.setMapType(mgr.getSavedMapType());
+		if(isNetworkAvailable()){
+			MapStateManager mgr = new MapStateManager(this);
+			CameraPosition position = mgr.getSavedCameraPosition();
+			if (position != null) {
+				CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+				mMap.moveCamera(update);
+				//			This is part of the answer to the code challenge
+				mMap.setMapType(mgr.getSavedMapType());
+			}
+		}else{
+			Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -376,6 +433,41 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			double dist = distance(lat, lng, Latitude, Longitude);	
 			Toast.makeText(this, "" + dist, Toast.LENGTH_SHORT).show();
 //			}
+			
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+			// set title
+			alertDialogBuilder.setTitle("Notification");
+			
+			// set dialog message
+			alertDialogBuilder
+			.setMessage(message)
+			.setCancelable(false)
+			.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					// if this button is clicked, close
+//					OFF_VIBRATION  = true;
+					
+					off_vibrator = true;
+				}
+			})
+			.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					// if this button is clicked, just close
+					// the dialog box and do nothing
+					dialog.cancel();
+				}
+			});
+			// create alert dialog
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			
+			if(dist<0.08000 && off_vibrator==false){
+					Toast.makeText(MainActivity.this, "Hureey.......", Toast.LENGTH_LONG).show();
+					//Start the vibration
+			        vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+			        vibrator.vibrate(2500);
+			     // show it
+					alertDialog.show();
+			}
 		}
 	}
 
@@ -468,6 +560,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			editor.putLong("lng", Double.doubleToLongBits(ll.longitude));
 			editor.putString("message", message.getText().toString());
 			editor.commit();
+			off_vibrator = false;
 			Toast.makeText(this, "Note Created Sucessfully", Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this,MainActivity.class);
 			startActivity(intent);

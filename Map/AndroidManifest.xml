@@ -12,6 +12,8 @@
         android:name="com.bluerocket.map.permission.MAPS_RECEIVE"
         android:protectionLevel="signature"/>
     <uses-permission android:name="com.bluerocket.map.permission.MAPS_RECEIVE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -46,7 +48,7 @@
             android:value="@integer/google_play_services_version" />
           <meta-data 
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCtZyMCGmpw3nrmbLFlzZNzBMbNwNCMWBQ"/>
+            android:value="AIzaSyD9eCl1ZK0f22ajvnifcDLu04s_6GiYWKM"/>
     </application>
 
 </manifest>
