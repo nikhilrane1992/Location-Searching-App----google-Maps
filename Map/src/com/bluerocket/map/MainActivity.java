@@ -15,8 +15,11 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentActivity;
@@ -66,10 +69,12 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@SuppressWarnings("unused")
 	private static final double JALGAON_LAT = 21.013321, 
 	JALGAON_LNG =75.563972;
+	
 	private static final float DEFAULTZOOM = 15;
 	LocationClient mLocationClient;
 	Marker marker;
 	Circle shape;
+	Location currentLoc;
 
 
 	@Override
@@ -82,10 +87,26 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	
 				if(initMap()){
 					Toast.makeText(this, "Ready to map!", Toast.LENGTH_SHORT).show();
-					gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
 					mMap.setMyLocationEnabled(true);
 					mLocationClient = new LocationClient(this, this, this);
 					mLocationClient.connect();
+					if (mLocationClient == null){
+					currentLoc = mLocationClient.getLastLocation();
+					if (currentLoc == null){
+						gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
+						Toast.makeText(this, "Current location isn't available", Toast.LENGTH_SHORT).show();
+					}else{
+						LatLng ll = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
+						gotoLocation(currentLoc.getLatitude(), currentLoc.getLongitude(), DEFAULTZOOM);
+					}
+					}else {
+						gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
+					}
+//					if(isNetworkAvailable()){
+//						gotoCurrentLocation();
+//					}else{
+//						Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
+//					}
 				}else{
 					Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
 				}
@@ -461,12 +482,16 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			AlertDialog alertDialog = alertDialogBuilder.create();
 			
 			if(dist<0.08000 && off_vibrator==false){
-					Toast.makeText(MainActivity.this, "Hureey.......", Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, "Location found", Toast.LENGTH_LONG).show();
 					//Start the vibration
 			        vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 			        vibrator.vibrate(2500);
-			     // show it
+			     // show alert box 
 					alertDialog.show();
+				// for ringtone
+					Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+					Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+					r.play();
 			}
 		}
 	}
@@ -554,15 +579,19 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			TextView lat = (TextView) findViewById(R.id.lat);
 			TextView lng = (TextView) findViewById(R.id.lng);
 			Log.d("nik", "SaveText");
+			
+			//to save note in shared preferances
 			SharedPreferences sharedPreferences=getSharedPreferences("SaveData", Context.MODE_PRIVATE);
 			SharedPreferences.Editor editor=sharedPreferences.edit();
 			editor.putLong("lat",  Double.doubleToLongBits(ll.latitude));
 			editor.putLong("lng", Double.doubleToLongBits(ll.longitude));
 			editor.putString("message", message.getText().toString());
 			editor.commit();
+		
 			off_vibrator = false;
 			Toast.makeText(this, "Note Created Sucessfully", Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
-			}
+			
+		}
 }
