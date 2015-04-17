@@ -62,6 +62,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private static final int GPS_ERRORDIALOG_REQUEST = 9001;
 	private static final String DEFAULT = "N/A";
 	public static Boolean off_vibrator=false;
+	public static Boolean off_currentLocation=true;
 	GoogleMap mMap;
     public Vibrator vibrator;
 
@@ -80,7 +81,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		off_currentLocation=true;
 		if(isNetworkAvailable()){
 			if (servicesOK()) {
 				setContentView(R.layout.activity_map);
@@ -90,23 +91,6 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 					mMap.setMyLocationEnabled(true);
 					mLocationClient = new LocationClient(this, this, this);
 					mLocationClient.connect();
-					if (mLocationClient == null){
-					currentLoc = mLocationClient.getLastLocation();
-					if (currentLoc == null){
-						gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
-						Toast.makeText(this, "Current location isn't available", Toast.LENGTH_SHORT).show();
-					}else{
-						LatLng ll = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
-						gotoLocation(currentLoc.getLatitude(), currentLoc.getLongitude(), DEFAULTZOOM);
-					}
-					}else {
-						gotoLocation(JALGAON_LAT, JALGAON_LNG, DEFAULTZOOM);
-					}
-//					if(isNetworkAvailable()){
-//						gotoCurrentLocation();
-//					}else{
-//						Toast.makeText(this, "Internet not available!", Toast.LENGTH_SHORT).show();
-//					}
 				}else{
 					Toast.makeText(this, "Map not available!", Toast.LENGTH_SHORT).show();
 				}
@@ -428,6 +412,11 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
 	@Override
 	public void onLocationChanged(Location location) {
+		if (off_currentLocation == true){
+			gotoLocation(location.getLatitude(),location.getLongitude(),DEFAULTZOOM);
+			off_currentLocation = false;
+		}
+		
 //				String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
 //				Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 		SharedPreferences sharedPreferences=getSharedPreferences("SaveData", Context.MODE_PRIVATE);
